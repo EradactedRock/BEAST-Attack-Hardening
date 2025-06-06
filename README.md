@@ -1,1 +1,96 @@
 # BEAST-Attack-Hardening
+📦 Windows SCHANNEL Hardening Project
+This project remediates the BEAST attack (Browser Exploit Against SSL/TLS) and strengthens the overall security posture of Windows servers and clients by enforcing modern TLS protocols, disabling legacy ciphers and hashes, and defining a secure cipher suite order. It leverages IIS Crypto, custom XML templates, and PDQ Connect to automate deployment across the environment.
+
+🚨 Background
+The BEAST attack is a vulnerability in SSL/TLS (specifically affecting TLS 1.0 and SSL 3.0) that allows attackers to exploit block cipher modes (like CBC) and decrypt sensitive data. This project was started to disable vulnerable protocols and ciphers and ensure that only secure, modern algorithms are used for TLS communication.
+
+🔧 Key Steps & Components
+1️⃣ Initial Hardening with IIS Crypto
+Used IIS Crypto to generate an initial secure configuration.
+
+Disabled weak protocols (SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1).
+
+Enabled only TLS 1.2 and TLS 1.3 for both client and server.
+
+Selected only secure ciphers: AES 128/128, AES 256/256.
+
+Enabled strong hashes: SHA256, SHA384, and SHA512.
+
+Configured key exchange algorithms: Diffie-Hellman, PKCS, and ECDH.
+
+2️⃣ Created a .ictpl Template
+Exported the secure configuration from IIS Crypto into an .ictpl file.
+
+The XML format captures all protocol, cipher, hash, and key exchange settings in a portable, shareable format.
+
+3️⃣ Converted .ictpl to .reg Script
+Parsed the .ictpl XML and manually translated its settings into Windows registry keys:
+
+Protocols: Enabled/disabled in SCHANNEL.
+
+Ciphers: Enabled/disabled in SCHANNEL.
+
+Hashes: Enabled/disabled in SCHANNEL.
+
+Key Exchange: Enabled/disabled in SCHANNEL.
+
+Cipher Suite Order: Defined using the Functions key.
+
+4️⃣ Automated Deployment with PDQ Connect
+Created a PDQ Connect package to deploy the .reg file to all affected Windows servers and clients.
+
+Configured the package to:
+
+Import the registry settings silently.
+
+Reboot the machine to apply changes.
+
+📋 Latest Registry Configuration
+The final .reg script includes:
+
+✅ Enabled TLS 1.2 and TLS 1.3 (Client & Server)
+✅ Disabled SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1, and PCT 1.0
+✅ Enabled only AES 128/128 and AES 256/256 ciphers
+✅ Disabled all other weak ciphers
+✅ Enabled SHA256, SHA384, SHA512 hashes
+✅ Disabled MD5 and SHA1 hashes
+✅ Enabled key exchange algorithms: Diffie-Hellman, PKCS, and ECDH
+✅ Set minimum DHE key length to 2048 bits
+✅ Disabled FIPS Algorithm Policy
+✅ Included full cipher suite ordering to maintain compatibility while enforcing security
+
+🚀 Testing:
+During the first drafts of testing, applying the registry changes would cause applications like Microsoft Teams, Outlook, and our Remote Connection Software to not connect to servers. These are priority applications that absolutely need to function. 
+
+Verify TLS functionality using:
+
+Event Viewer → Windows Logs → System → Schannel logs.
+
+In Powershell: #used to check the active cipher suites enabled in the system after the registry changes
+
+	Get-TlsCipherSuite | Select-Object Name
+
+🛡️ Security Considerations
+Test before deployment: Always apply to a staging environment first.
+
+Verify compatibility: Some legacy applications might require older cipher suites (included in fallback position).
+
+Document exceptions: If any application requires weaker settings, document and risk-assess them individually.
+
+📝 Acknowledgments
+IIS Crypto: for making Schannel hardening easy and exportable.
+
+PDQ Connect: for streamlined remote deployment.
+
+OpenAI ChatGPT: for assistance in translating .ictpl files to .reg format and refining configuration.
+
+📚 References
+
+BEAST attack explained >> https://en.wikipedia.org/wiki/Transport_Layer_Security#BEAST_attack
+
+BEAST attack CVE >> https://nvd.nist.gov/vuln/detail/cve-2011-3389
+
+IIS Crypto Documentation >> https://www.nartac.com/
+
+Microsoft Schannel Registry Settings >> https://www.nartac.com/Products/IISCrypto/FAQ/what-registry-keys-does-iis-crypto-modify
