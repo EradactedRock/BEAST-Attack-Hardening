@@ -4,7 +4,20 @@ This project remediates the BEAST attack (Browser Exploit Against SSL/TLS) and s
 
 🚨 Background
 The BEAST attack is a vulnerability in SSL/TLS (specifically affecting TLS 1.0 and SSL 3.0) that allows attackers to exploit block cipher modes (like CBC) and decrypt sensitive data. This project was started to disable vulnerable protocols and ciphers and ensure that only secure, modern algorithms are used for TLS communication.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+Files found in Github ------>
 
+Apply_IISCrypto_Strict.bat >> This is the script used to make the registry changes on the end user machine. 
+
+IISCryto_Template_XML.txt >> This XML file was spawned out of the ICTPL file, which is the template used by IIS Crypto to make the registry changes. The purpose of extracting the XML file was so that Chat GPT can have a reference file of the exact configuration needed to be made. 
+
+
+PDQ_IISHardening_Script.ps1 >> This script was used to set up a package deployment in PDQ Connect. After creating the package deployment, we are able to remotely deploy the registry changes to end user machines. 
+
+
+SCHANNEL Configuration.png >> A picture of the SCHANNEL configuration page in IIS Crypto GUI. The GUI was used to build the Protocols, Ciphers, Hashes, and Key Exchanges we needed to enable/disable on our machines. By doing these changes in the GUI, the CIPHER suites were also changed to allow for the safest communication exchange order.  
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 🔧 Key Steps & Components
 1️⃣ Initial Hardening with IIS Crypto
 Used IIS Crypto to generate an initial secure configuration.
